@@ -1,7 +1,7 @@
 # Azhi_skills
 
-A collection of reusable AI coding skills.
+我自己用的简单 skills 集合，主要是工程规范 / 开发流程类，随用随加。
 
 ## Skills
 
-- **orca-ticket-loop** — One-ticket-per-context development loop: each fresh Pi context claims one GitHub issue, implements it TDD with gates and code review, commits/closes it, then dispatches the next eligible ticket into a fresh Pi in the active Orca worktree and stops.
+- **orca-ticket-loop** — 一票一上下文的开发循环：每个全新 Pi 上下文只认领一个 GitHub issue，TDD 实现、过 gate 和 code review，提交并关闭后，在当前 Orca worktree 里派发新 Pi 处理下一个合格 ticket，然后停止。依赖 Orca CLI、gh、pi。
