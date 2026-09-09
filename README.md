@@ -11,7 +11,7 @@ npx skills add Azhi-ss/Azhi_skills
 只装单个 skill：
 
 ```bash
-npx skills add Azhi-ss/Azhi_skills/skills/orca-ticket-loop
+npx skills add Azhi-ss/Azhi_skills/orca-ticket-loop
 ```
 
 ## Skills
