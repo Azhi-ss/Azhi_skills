@@ -16,4 +16,4 @@ npx skills add Azhi-ss/Azhi_skills/orca-ticket-loop
 
 ## Skills
 
-- **orca-ticket-loop** — 一票一上下文的开发循环：每个全新 Pi 上下文只认领一个 GitHub issue，TDD 实现、过 gate 和 code review，提交并关闭后，在当前 Orca worktree 里派发新 Pi 处理下一个合格 ticket，然后停止。依赖 Orca CLI、gh、pi。
+- **orca-ticket-loop** — v2 自主开发循环：首票即在当前 Orca worktree 新开 Pi 终端，一上下文只处理一票；TDD、测试和审查问题自主修复，上下文不足续接同票，单票阻塞时安全转做独立票。保留真实决策授权、验收门槛与单写入者约束，完成后提交、关闭并派发下一票；不默认 push。依赖 Orca CLI、gh、pi。
