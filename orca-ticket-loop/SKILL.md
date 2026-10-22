@@ -7,7 +7,7 @@ description: >-
   a fresh Pi. Use for ticket loops, continuous development, next ticket, ticket
   workflow, 连续开发 or 一票一上下文. Never run concurrent writers in one worktree.
 metadata:
-  version: "2.0"
+  version: "3.0"
 ---
 
 # Orca Ticket Loop
@@ -19,7 +19,9 @@ writer owns that worktree at a time.
 
 This is a cooperative handoff protocol, not a daemon. It cannot wake itself after every
 process has crashed. Do not promise unattended crash recovery without an independently
-authorized external wake mechanism.
+authorized external wake mechanism. An Orca automation (interval trigger) that checks
+queue and terminal state and notifies the user can serve as that authorized external
+wake, if the user configures one.
 
 ## 1. Launcher versus worker
 
@@ -48,7 +50,10 @@ Before any implementation write:
    access remains unavailable, do not edit code or guess eligibility.
 2. Read the ticket body and **all comments**, parent spec, relevant `CONTEXT.md` and ADRs.
    Require state open, `ready-for-agent`, nonempty acceptance criteria and a declared
-   parent spec. Verify both textual and native blocking edges where supported.
+   parent spec. Verify both textual and native blocking edges where supported. A spec
+   issue may serve directly as a single ticket: the launcher's reservation comment then
+   declares the acceptance summary, derived from the spec's user stories and testing
+   decisions, and names the spec as its own parent.
 3. Check prior stop/decision records. Already-approved decisions are reused, not asked
    again. A resolved blocker needs recorded evidence; absence of a later comment is not
    resolution. A malformed ticket or unresolved material decision is a ticket-local block.
@@ -218,8 +223,10 @@ matter. Do not edit or close a parent spec simply to maintain the queue.
 
 Resolve the executable once per context: `ORCA_CLI_COMMAND` if set; otherwise follow the
 installed orca-cli skill's platform resolution (Linux outside Orca uses `orca-ide`, never the
-GNOME screen reader `orca`). Read `ORCA skills get orca-cli`, the version-matched guide,
-before using commands. Do not switch binaries on failure or guess unsupported subcommands.
+GNOME screen reader `orca`). The four commands below are the stable surface this protocol
+needs; consult `ORCA skills get orca-cli` (the version-matched guide) only when a command
+errors or reports an unsupported flag. Do not switch binaries on failure or guess
+unsupported subcommands.
 
 Verify `ORCA status --json` and inspect existing terminals before creating one. Use the
 active worktree; no new checkout unless separately authorized:
@@ -232,12 +239,16 @@ ORCA terminal read --terminal <handle> --json
 ```
 
 Use the create response's terminal handle (startupTerminal.handle or terminal.handle as
-returned). Send only after `satisfied: true`; one further bounded readiness wait is allowed
-by the guide. Never resend just because execution evidence is delayed.
+returned). `wait` supports only `--for tui-idle` and `--for exit` — there is no submit
+condition; check `result.wait.satisfied`. Send only after `satisfied: true`; one further
+bounded readiness wait is allowed. Never resend just because execution evidence is
+delayed.
 
-`accepted: true` only proves input acceptance. Prefer supported submission observation
-(e.g. `--wait-submit` per guide) and one bounded terminal read to prove processing. If still
-ambiguous, allow at most two additional bounded observations of the **same** terminal/request.
+`accepted: true` only proves input acceptance. Prove processing with one bounded
+`terminal read`: the screen text is `result.terminal.tail` (an array of strings;
+`tailRows` carries only row metadata) — look for evidence the dispatch is executing,
+such as tool calls or file reads matching the ticket. If still ambiguous, allow at most
+two additional bounded observations of the **same** terminal/request.
 Do not spin or duplicate-send. A stale handle permits one documented re-list/reconciliation
 against the same process identity, not sending to both handles. Replacement needs confirmed
 old process death/non-delivery, preserved work, and an ownership-transfer record. If execution
@@ -252,7 +263,7 @@ Do not supervise/poll the successor's implementation unless the user requested s
 
 ```text
 /implement #<n> [<title>]. Repo: <repo>; parent: <ref>. Acceptance: <short summary>.
-Read the installed orca-ticket-loop SKILL.md (v2+) and follow its worker protocol;
+Read the installed orca-ticket-loop SKILL.md (v3+) and follow its worker protocol;
 this is <new ticket / same-ticket continuation>. Read issue + all comments, parent,
 CONTEXT.md and relevant ADRs. Handoff/reservation: <comment URL>; review base: <commit>.
 Preflight before writes; claim/verify ownership for a new ticket, or accept the named
